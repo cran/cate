@@ -5,10 +5,10 @@
 \alias{est.factor.num}
 \title{Estimate the number of confounders}
 \usage{
-est.confounder.num(X, Y, X.nuis = NULL, method = c("ED", "BCV"),
+est.confounder.num(X, Y, X.nuis = NULL, method = c("bcv", "ed"),
   rmax = 20, nRepeat = 12, bcv.plot = TRUE, log = "")
 
-est.factor.num(Y, method = c("ED", "BCV"), rmax = 20, nRepeat = 12,
+est.factor.num(Y, method = c("bcv", "ed"), rmax = 20, nRepeat = 12,
   bcv.plot = TRUE, log = "")
 }
 \arguments{
@@ -16,31 +16,31 @@ est.factor.num(Y, method = c("ED", "BCV"), rmax = 20, nRepeat = 12,
 
 \item{Y}{outcome, n*p matrix}
 
-\item{X.nuis}{nuissance covarites, n*d1 matrix}
+\item{X.nuis}{nuisance covarites, n*d1 matrix}
 
 \item{method}{method to estimate the number of factors. There are currently two choices,
-"ED" is the eigenvalue difference method proposed by Onatski (2010) and "BCV" is the
-bi-cross-validation method proposed by Owen and Wang (2015). "BCV" tends to estimate more
+"ed" is the eigenvalue difference method proposed by Onatski (2010) and "bcv" is the
+bi-cross-validation method proposed by Owen and Wang (2015). "bcv" tends to estimate more
 weak factors and takes longer time}
 
 \item{rmax}{the maximum number of factors to consider. If the estimated number of factors is rmax,
 then users are encouraged to increase rmax and run again. Default is 20.}
 
 \item{nRepeat}{the number of repeats of bi-cross-validation. A larger nRepeat will result in a
-more accurate estimate of the BCV error, but will need longer time to run.}
+more accurate estimate of the bcv error, but will need longer time to run.}
 
-\item{bcv.plot}{whether to plot the relative BCV error versus the number of estimated
-ranks. The relative BCV error is the entrywise mean square error devided by the average of
+\item{bcv.plot}{whether to plot the relative bcv error versus the number of estimated
+ranks. The relative bcv error is the entrywise mean square error devided by the average of
 the estimated noise variance.}
 
-\item{log}{if \code{log = "y"}, then the y-axis of the BCV plot is in log scale.}
+\item{log}{if \code{log = "y"}, then the y-axis of the bcv plot is in log scale.}
 }
 \value{
-if \code{method} is "ED", then return the estimated number of confounders/factors.
-If \code{method} is "BCV", then return the a list of objects
+if \code{method} is "ed", then return the estimated number of confounders/factors.
+If \code{method} is "bcv", then return the a list of objects
 \describe{
 \item{r}{estimated number of confounders/factors}
-\item{errors}{the relative BCV errors of length \code{1 + rmax}}
+\item{errors}{the relative bcv errors of length \code{1 + rmax}}
 }
 }
 \description{
@@ -53,8 +53,8 @@ Estimate the number of confounders
 \examples{
 ## example for est.confounder.num
 data <- gen.sim.data(n = 50, p = 100, r = 5)
-est.confounder.num(data$X1, data$Y, data$X0, method = "ED")
-est.confounder.num(data$X1, data$Y, data$X0, method = "BCV")
+est.confounder.num(data$X1, data$Y, data$X0, method = "ed")
+est.confounder.num(data$X1, data$Y, data$X0, method = "bcv")
 ## example for est.factor.num
 n <- 50
 p <- 100
@@ -63,8 +63,8 @@ Z <- matrix(rnorm(n * r), n, r)
 Gamma <- matrix(rnorm(p * r), p, r)
 Y <- Z \%*\% t(Gamma) + rnorm(n * p)
 
-est.factor.num(Y, method = "ED")
-est.factor.num(Y, method = "BCV")
+est.factor.num(Y, method = "ed")
+est.factor.num(Y, method = "bcv")
 }
 \references{
 {

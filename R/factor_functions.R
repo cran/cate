@@ -61,7 +61,7 @@
 #'
 factor.analysis <- function(Y,
                             r,
-                            method = c("pc", "ml", "esa")) {
+                            method = c("ml", "pc", "esa")) {
 
                                         # match the arguments
     if (r == 0) {
@@ -248,37 +248,37 @@ fa.em <- function(Y, r, tol = 1e-6, maxiter = 1000) {
 #' Gamma <- matrix(rnorm(p * r), p, r)
 #' Y <- Z %*% t(Gamma) + rnorm(n * p)
 #' 
-#' est.factor.num(Y, method = "ED")
-#' est.factor.num(Y, method = "BCV")
+#' est.factor.num(Y, method = "ed")
+#' est.factor.num(Y, method = "bcv")
 #' 
 est.factor.num <- function(Y,
-                           method = c("ED", "BCV"),
+                           method = c("bcv", "ed"),
                            rmax = 20,                           
                            nRepeat = 12,
                            bcv.plot = TRUE, log = "") {
   
+  method <- match.arg(method, c("bcv", "ed"))
+  
   n <- nrow(Y)
   p <- ncol(Y)
-  
-  
-  
-  if (identical(method, "BCV")) {
+    
+  if (identical(method, "bcv")) {
     result <- EsaBcv(Y, nRepeat = nRepeat, r.limit = rmax)
     r <- result$best.r
+    avg.sigma2 <- mean(result$estSigma)
+    errors <- colMeans(result$result.list)/avg.sigma2
     if (bcv.plot) {
-      avg.sigma2 <- mean(result$estSigma)
-      errors <- colMeans(result$result.list)/avg.sigma2
       plot(0:(length(errors)-1), errors, log = log, xlab = "r",
-           ylab = "BCV MSE relative to the noise", type = "o")
+           ylab = "bcv MSE relative to the noise", type = "o")
     }
     return(list(r = r, errors = errors))
-  } else if (identical(method, "ED")) {
- 	return(EigenDiff(Y, rmax))
+  } else if (identical(method, "ed")) {
+ 	  return(EigenDiff(Y, rmax))
   }
 
 }
 
-#' the ED method to estimate the number of factors proposed by Onatski(2010)
+#' the ed method to estimate the number of factors proposed by Onatski(2010)
 #' @inheritParams est.confounder.num
 #' 
 #' @keywords internal

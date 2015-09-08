@@ -2,7 +2,7 @@
 % Please edit documentation in R/factor_functions.R
 \name{EigenDiff}
 \alias{EigenDiff}
-\title{the ED method to estimate the number of factors proposed by Onatski(2010)}
+\title{the ed method to estimate the number of factors proposed by Onatski(2010)}
 \usage{
 EigenDiff(Y, rmax = 20, niter = 10)
 }
@@ -13,7 +13,7 @@ EigenDiff(Y, rmax = 20, niter = 10)
 then users are encouraged to increase rmax and run again. Default is 20.}
 }
 \description{
-the ED method to estimate the number of factors proposed by Onatski(2010)
+the ed method to estimate the number of factors proposed by Onatski(2010)
 }
 \keyword{internal}
 

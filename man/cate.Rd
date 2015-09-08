@@ -4,7 +4,7 @@
 \alias{cate}
 \title{The main function for confounder adjusted testing}
 \usage{
-cate(X, Y, X.nuis = NULL, fa.method = c("ml", "pc", "esa"), r,
+cate(X, Y, X.nuis = NULL, r, fa.method = c("ml", "pc", "esa"),
   adj.method = c("rr", "nc", "lqs", "naive"), psi = psi.huber, nc = NULL,
   nc.var.correction = TRUE, calibrate = TRUE)
 }
@@ -13,11 +13,11 @@ cate(X, Y, X.nuis = NULL, fa.method = c("ml", "pc", "esa"), r,
 
 \item{Y}{outcome, n*p matrix}
 
-\item{X.nuis}{nuissance covarites, n*d1 matrix}
-
-\item{fa.method}{factor analysis method}
+\item{X.nuis}{nuisance covarites, n*d1 matrix}
 
 \item{r}{number of latent factors, can be estimated using the function \code{est.confounder.num}}
+
+\item{fa.method}{factor analysis method}
 
 \item{adj.method}{adjustment method}
 

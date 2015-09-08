@@ -21,7 +21,7 @@ leapp.wrapper(X, Y, X.nuis = NULL, r, search.tuning = F,
 
 \item{Y}{outcome, n*p matrix}
 
-\item{X.nuis}{nuissance covarites, n*d1 matrix}
+\item{X.nuis}{nuisance covarites, n*d1 matrix}
 
 \item{r}{number of latent factors, can be estimated using the function \code{est.confounder.num}}
 

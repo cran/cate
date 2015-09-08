@@ -4,7 +4,7 @@
 \alias{factor.analysis}
 \title{Factor analysis}
 \usage{
-factor.analysis(Y, r, method = c("pc", "ml", "esa"))
+factor.analysis(Y, r, method = c("ml", "pc", "esa"))
 }
 \arguments{
 \item{Y}{data matrix, a n*p matrix}
