@@ -12,8 +12,7 @@ names(gender.sm)
 cbind(X = dim(gender.sm$X), Y = dim(gender.sm$Y), Z = dim(gender.sm$Z)) # matrix dimensions
 
 ## ----two-sample-t,cache=TRUE------------------------------------------------------------
-p <- ncol(gender.sm$Y) # number of genes
-t.stats <- sapply(1:p, function(j) t.test(gender.sm$Y[,j] ~ gender.sm$X)$statistic)
+t.stats <- apply(gender.sm$Y, 2, function(y, x) t.test(y~x)$statistic, gender.sm$X)
 
 ## ----two-sample-t-hist, fig.width=8, fig.height=2.5, echo=FALSE, fig.cap="Histogram of t-statistics before confounder adjustment"----
 library(ggplot2)

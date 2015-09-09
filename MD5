@@ -1,4 +1,4 @@
-2d960f389307a69d8459ad7b365f5795 *DESCRIPTION
+a80fee3890c5480788d70f365a797426 *DESCRIPTION
 c9b8235bf1413ede31785f351b6b8464 *NAMESPACE
 063970395fd714a77b0ced23bc1a635a *R/adjust_functions.R
 e349edf48653854d010d4696b7cce478 *R/cate.R
@@ -6,11 +6,11 @@ e349edf48653854d010d4696b7cce478 *R/cate.R
 9fcb427d9692b52ac243685e73febe42 *R/factor_functions.R
 5674e78643acd36651e7d5ce06df7d3f *R/other_methods.R
 1d6a49e200db16a5250b8f4add27a96f *R/simulate_functions.R
-df66956dbc6b25e9e14d31d0b089930f *build/vignette.rds
+b236de0e1401122c1fd16214f3a7d308 *build/vignette.rds
 f9f1b29bb6163c75a82bf35472aa5f58 *data/gender.sm.rda
-48271001f8deed4faa872f5e91417c14 *inst/doc/cate-vignette.R
-061dd131466fa9923dae625c46d4d19e *inst/doc/cate-vignette.Rnw
-2ceccf1a07bdd086c5c776bb58642e33 *inst/doc/cate-vignette.pdf
+6e8c4544ff6d890a378fb5bd73891e6e *inst/doc/cate-vignette.R
+f7294a080fe5ee4ba46ac5d93f6492de *inst/doc/cate-vignette.Rnw
+390c4606ca55f6a0d0e1f0f07f5b468c *inst/doc/cate-vignette.pdf
 fa133b62367dacaccb57cac8b5994a28 *man/EigenDiff.Rd
 c0a647677313f18cca6196fc9e5560bc *man/IPOD.Rd
 fb17d1968c8ff0449671d7aca376c9ae *man/adjust.latent.Rd
@@ -25,4 +25,4 @@ b43b27a1969df27ed858e3f1575c526d *man/gen.sim.data.Rd
 92f14a506c940ed965ea1d67f4cb1360 *man/leapp.Rd
 1d8ad1c01950c4a511ecbd10cc243fe8 *man/rlm.cate.Rd
 343219e55ad97aa4e0ca2c3e5567acd8 *man/wrapper.Rd
-061dd131466fa9923dae625c46d4d19e *vignettes/cate-vignette.Rnw
+f7294a080fe5ee4ba46ac5d93f6492de *vignettes/cate-vignette.Rnw

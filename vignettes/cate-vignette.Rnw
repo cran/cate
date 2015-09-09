@@ -26,6 +26,26 @@ author = {Wang, Jingshu and Zhao, Qingyuan and Hastie, Trevor and Owen, Art B.},
 journal = {arXiv:1508.04178},
 year = {2015}
 }
+@article{leek2008,
+  title={A general framework for multiple testing dependence},
+	author={Leek, Jeffrey T and Storey, John D},
+	journal={Proceedings of the National Academy of Sciences},
+	volume={105},
+	number={48},
+	pages={18718--18723},
+	year={2008},
+	publisher={National Acad Sciences}
+}
+@article{sun2012,
+  title={Multiple hypothesis testing adjusted for latent variables, with an application to the agemap gene expression data},
+	author={Sun, Yunting and Zhang, Nancy R and Owen, Art B},
+	journal={The Annals of Applied Statistics},
+	volume={6},
+	number={4},
+	pages={1664--1688},
+	year={2012},
+	publisher={Institute of Mathematical Statistics}
+}
 @article{bai2012,
   title={Statistical analysis of factor models of high dimension},
         author={Bai, Jushan and Li, Kunpeng},
@@ -126,8 +146,7 @@ Since there are several batch variables and unmeasured covariates in this datase
 
 To illustrate how the confounders in the \texttt{gender.sm} dataset can bias the association tests, we first run the two-sample t-test for each gene
 <<two-sample-t,cache=TRUE>>==
-p <- ncol(gender.sm$Y) # number of genes
-t.stats <- sapply(1:p, function(j) t.test(gender.sm$Y[,j] ~ gender.sm$X)$statistic)
+t.stats <- apply(gender.sm$Y, 2, function(y, x) t.test(y~x)$statistic, gender.sm$X)
 @
 Under the null hypothesis that the gene is unrelated to the gender, the corresponding t-statistic is expected to follow a t-distribution with $n-1$ degrees of freedom. Since $n=84$ is fairly large in this study, this t-distribution is very close to the standard normal distribution $\mathrm{N}(0,1)$. However, the empirical distribution of \texttt{t.stats} is shown in the next histogram (code not echoed):
 <<two-sample-t-hist, fig.width=8, fig.height=2.5, echo=FALSE, fig.cap="Histogram of t-statistics before confounder adjustment">>==
@@ -218,7 +237,7 @@ grid.arrange(hist.t.stats.after, hist.t.stats.after.nc)
 
 \section{Other available confounder adjustment methods on CRAN/Bioconductor}
 
-The preprocessed \texttt{gender.sm} dataset was first used by \citet{gagnon2012} to demonstrate their confounder correction method "Remove Unwanted Variation" (RUV) using negative controls. See also the R package \href{https://cran.r-project.org/web/packages/ruv/index.html}{\texttt{ruv}}. The \texttt{RUV4} function therein is very similar to the \texttt{adj.method = "nc"} option in \texttt{cate}. Two other related packages are \href{https://www.bioconductor.org/packages/release/bioc/html/sva.html}{\texttt{sva}} and \href{https://cran.r-project.org/web/packages/leapp/index.html}{\texttt{leapp}}, which motivate the robust regression method (\texttt{adj.method = "rr"}) in \texttt{cate}.
+The preprocessed \texttt{gender.sm} dataset was first used by \citet{gagnon2012} to demonstrate their confounder correction method "Remove Unwanted Variation" (RUV) using negative controls. See also the R package \href{https://cran.r-project.org/web/packages/ruv/index.html}{\texttt{ruv}}. The \texttt{RUV4} function therein is very similar to the \texttt{adj.method = "nc"} option in \texttt{cate}. Two other related packages are \href{https://www.bioconductor.org/packages/release/bioc/html/sva.html}{\texttt{sva}} \citep{leek2008} and \href{https://cran.r-project.org/web/packages/leapp/index.html}{\texttt{leapp}} \citep{sun2012}, which motivate the robust regression method (\texttt{adj.method = "rr"}) in \texttt{cate}.
 
 To compare the performance of different methods, the user can use the wrapper functions \texttt{sva.wrapper}, \texttt{ruv.wrapper}, \texttt{leapp.wrapper} in the \texttt{cate} package. They provide a uniform interface and call the corresponding functions in the original packages.
 
