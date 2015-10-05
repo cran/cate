@@ -7,21 +7,21 @@
 \alias{wrapper}
 \title{Wrapper functions for some previous methods}
 \usage{
-sva.wrapper(X, Y, X.nuis = NULL, r, sva.method = c("irw", "two-step"),
+sva.wrapper(formula, X.data = NULL, Y, r, sva.method = c("irw", "two-step"),
   B = 5)
 
-ruv.wrapper(X, Y, X.nuis = NULL, r, nc, lambda = 1, ruv.method = c("RUV2",
-  "RUV4", "RUVinv"))
+ruv.wrapper(formula, X.data = NULL, Y, r, nc, lambda = 1,
+  ruv.method = c("RUV2", "RUV4", "RUVinv"))
 
-leapp.wrapper(X, Y, X.nuis = NULL, r, search.tuning = F,
+leapp.wrapper(formula, X.data = NULL, Y, r, search.tuning = F,
   ipod.method = c("hard", "soft"))
 }
 \arguments{
-\item{X}{treatment variable, n*d0 matrix}
+\item{formula}{a formula indicating the known covariates including both primary variables and nuisance variables, which are seperated by \code{|}. The variables before \code{|} are primary variables and the variables after \code{|} are nuisance variables. It's OK if there is no nuisance variables, then \code{|} is not needed and \code{formula} becomes a typical formula with all the covariates considered primary. An intercept term will still be automatically added as a nuisance variable for the latter case.}
+
+\item{X.data}{the data frame used for \code{formula}}
 
 \item{Y}{outcome, n*p matrix}
-
-\item{X.nuis}{nuisance covarites, n*d1 matrix}
 
 \item{r}{number of latent factors, can be estimated using the function \code{est.confounder.num}}
 
@@ -37,7 +37,7 @@ whether to use an iterative reweighted algorithm (irw) or a two-step algorithm (
 \item{ruv.method}{either using \code{\link[ruv]{RUV2}}, \code{\link[ruv]{RUV4}} or
 \code{\link[ruv]{RUVinv}} functions}
 
-\item{search.tuning}{logical parameter for \code{\link[leapp]{leapp}}, whether using BIC to search for tuning parameter of IPOD}
+\item{search.tuning}{logical parameter for \code{\link[leapp]{leapp}}, whether using BIC to search for tuning parameter of IPOD.}
 
 \item{ipod.method}{parameter for \code{\link[leapp]{leapp}}. "hard": hard thresholding in the IPOD algorithm;
 "soft": soft thresholding in the IPOD algorithm}
@@ -52,9 +52,9 @@ The wrapper functions transform the data into desired forms and call the corresp
 \link{sva}, \link{ruv}, \link[leapp]{leapp}
 }
 \details{
-These functions add an intercept term automatically if \code{X.nuis} is \code{NULL}.
+The \code{beta.p.values} returned is a length \code{p} vector, each for the overall effects of all the primary variables.
 
-Only 1 variable of interest is allowed for \code{leapp.wrapper}.
+Only 1 variable of interest is allowed for \code{leapp.wrapper}. The method can be slow.
 }
 \examples{
 ## this is the simulation example in Wang et al. (2015).
@@ -68,11 +68,13 @@ data <- gen.sim.data(n = n, p = p, r = r,
                      Gamma.strength = c(seq(3, 1, length = r)) * sqrt(p),
                      Sigma = 1 / rgamma(p, 3, rate = 2),
                      beta.nonzero.frac = 0.05)
-sva.results <- sva.wrapper(data$X1, data$Y, data$X0, r = r, sva.method = "irw")
-ruv.results <- ruv.wrapper(data$X1, data$Y, data$X0, r = r, nc = sample(data$beta.zero.pos, 30),
-                           ruv.method = "RUV4")
-leapp.results <- leapp.wrapper(data$X1, data$Y, data$X0, r = r)
-cate.results <- cate(data$X1, data$Y, data$X0, r = r)
+X.data <- data.frame(X1 = data$X1)
+sva.results <- sva.wrapper(~ X1, X.data, data$Y,
+                           r = r, sva.method = "irw")
+ruv.results <- ruv.wrapper(~ X1, X.data, data$Y, r = r,
+                           nc = sample(data$beta.zero.pos, 30), ruv.method = "RUV4")
+leapp.results <- leapp.wrapper(~ X1, X.data, data$Y, r = r)
+cate.results <- cate(~ X1, X.data, data$Y, r = r)
 
 ## p-values after adjustment
 par(mfrow = c(2, 2))

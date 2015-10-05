@@ -30,10 +30,10 @@ adjust.latent(corr.margin, n, X.cov, Gamma, Sigma, method = c("rr", "nc",
 \value{
 a list of objects
 \describe{
-\item{alpha}{estimated alpha}
-\item{beta}{estimated beta}
-\item{beta.cov.row}{estimated row covariance of beta}
-\item{beta.cov.col}{estimated column covariance of beta}
+\item{alpha}{estimated alpha, r*d1 matrix}
+\item{beta}{estimated beta, p*d1 matrix}
+\item{beta.cov.row}{estimated row covariance of \code{beta}, a length p vector}
+\item{beta.cov.col}{estimated column covariance of \code{beta}, a d1*d1 matrix}
 }
 }
 \description{

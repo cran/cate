@@ -23,8 +23,8 @@
 #'
 #' @return a list of objects
 #' \describe{
-#' \item{X0}{matrix nuisance covariates}
-#' \item{X1}{primary covariates}
+#' \item{X0}{matrix of nuisance covariates}
+#' \item{X1}{matrix of primary covariates}
 #' \item{Y}{matrix Y}
 #' \item{Z}{matrix of confounders}
 #' \item{alpha}{regression coefficients between X and Z}
@@ -117,6 +117,7 @@ gen.sim.data <- function(n,
     	Sigma.half <- Sigma.svd$u %*% diag(sqrt(Sigma.svd$d)) %*% t(Sigma.svd$v)
 		Y <- X %*% t(beta) + Z %*% t(Gamma) + matrix(rnorm(n*p), n, p) %*% Sigma.half
 	}
+
 
     if (d0 >= 1) {
         X0 = X[, 1:d0, drop = FALSE]

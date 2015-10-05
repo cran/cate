@@ -43,8 +43,8 @@ gen.sim.data(n, p, r, d0 = 0, d1 = 1, X.dist = c("binary", "normal"),
 \value{
 a list of objects
 \describe{
-\item{X0}{matrix nuisance covariates}
-\item{X1}{primary covariates}
+\item{X0}{matrix of nuisance covariates}
+\item{X1}{matrix of primary covariates}
 \item{Y}{matrix Y}
 \item{Z}{matrix of confounders}
 \item{alpha}{regression coefficients between X and Z}

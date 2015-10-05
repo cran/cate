@@ -282,7 +282,6 @@ est.factor.num <- function(Y,
 #' @inheritParams est.confounder.num
 #' 
 #' @keywords internal
-
 EigenDiff <- function(Y, rmax = 20, niter = 10) {
 	n <- nrow(Y)
 	p <- ncol(Y)

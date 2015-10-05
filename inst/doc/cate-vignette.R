@@ -24,16 +24,20 @@ set.seed(1)
 
 ## ----est-confounder-num,cache=TRUE------------------------------------------------------
 n <- nrow(gender.sm$Y) # number of samples
-intercept <- matrix(1, n, 1) # the intercept vector that will be used as a nuisance covariate
-factor.num <- est.confounder.num(gender.sm$X, gender.sm$Y, intercept,
-                                 method = "bcv", rmax = 30, nRepeat = 3, bcv.plot = FALSE)
+gender.data <- data.frame(gender = gender.sm$X, gender.sm$Z)
+factor.num <- est.confounder.num(~ gender | . - gender + 0, 
+                                 gender.data, gender.sm$Y, 
+                                 method = "bcv", bcv.plot = FALSE,
+                                 rmax = 30, nRepeat = 20)
 factor.num$r
 
 ## ---------------------------------------------------------------------------------------
-est.confounder.num(gender.sm$X, gender.sm$Y, intercept, method = "ed")
+est.confounder.num(~ gender | . - gender + 0, 
+                   gender.data, gender.sm$Y, method = "ed")
 
 ## ----cate-------------------------------------------------------------------------------
-cate.results <- cate(gender.sm$X, gender.sm$Y, intercept, r = factor.num$r)
+cate.results <- cate(~ gender | . - gender + 0, 
+                     gender.data, gender.sm$Y, r = factor.num$r)
 names(cate.results)
 
 ## ----confounding-test-------------------------------------------------------------------
@@ -47,13 +51,14 @@ cate.results$alpha.p.value
 args(cate)
 
 ## ----cate-nc----------------------------------------------------------------------------
-cate.results.nc <- cate(gender.sm$X, gender.sm$Y, intercept, r = factor.num$r,
+cate.results.nc <- cate(~ gender | . - gender + 0, 
+                        gender.data, gender.sm$Y, r = factor.num$r,
                         adj.method = "nc", nc = gender.sm$spikectl)
 
 ## ----t-hist-after, fig.height=5, fig.width=8, fig.cap="Histograms of test statistics after adjustment", echo=FALSE----
-t.stats <- cate.results$beta.t
+t.stats <- as.vector(cate.results$beta.t)
 hist.t.stats.after <- ggplot() + aes(x = t.stats, y = ..density..) + geom_histogram(binwidth = 0.1, colour = "black", fill = "white") + xlim(c(-4, 4)) + geom_line(aes(x = seq(-4, 4, 0.01), y = dnorm(seq(-4, 4, 0.01), median(t.stats), mad(t.stats))), col = "violetred3", size = 1) + geom_text(aes(x = 2, y = 0.3, label = paste0("N(0,1)")), col = "violetred3", show_guide= FALSE, size = 3) + xlab("t-statistics") + ylab("density") + theme_bw(base_size = 10) + ggtitle("Adjusted by Robust Regression")
-t.stats.nc <- cate.results.nc$beta.t
+t.stats.nc <- as.vector(cate.results.nc$beta.t)
 hist.t.stats.after.nc <- ggplot() + aes(x = t.stats.nc, y = ..density..) + geom_histogram(binwidth = 0.1, colour = "black", fill = "white") + xlim(c(-4, 4)) + geom_line(aes(x = seq(-4, 4, 0.01), y = dnorm(seq(-4, 4, 0.01), median(t.stats.nc), mad(t.stats.nc))), col = "violetred3", size = 1) + geom_text(aes(x = 2, y = 0.3, label = paste0("N(0,1)")), col = "violetred3", show_guide= FALSE, size = 3) + xlab("t-statistics") + ylab("density") + theme_bw(base_size = 10) + ggtitle("Adjusted by Negative Control")
 library(gridExtra)
 grid.arrange(hist.t.stats.after, hist.t.stats.after.nc)

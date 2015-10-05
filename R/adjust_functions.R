@@ -23,10 +23,10 @@
 #' 
 #' @return a list of objects
 #' \describe{
-#' \item{alpha}{estimated alpha}
-#' \item{beta}{estimated beta}
-#' \item{beta.cov.row}{estimated row covariance of beta}
-#' \item{beta.cov.col}{estimated column covariance of beta}
+#' \item{alpha}{estimated alpha, r*d1 matrix}
+#' \item{beta}{estimated beta, p*d1 matrix}
+#' \item{beta.cov.row}{estimated row covariance of \code{beta}, a length p vector}
+#' \item{beta.cov.col}{estimated column covariance of \code{beta}, a d1*d1 matrix}
 #' }
 #'
 #' @import stats MASS
@@ -34,7 +34,7 @@
 #' @export
 #'
 adjust.latent <- function(corr.margin,
-						              n, 
+						  n, 
                           X.cov,
                           Gamma,
                           Sigma,
@@ -53,7 +53,6 @@ adjust.latent <- function(corr.margin,
 
     output <- list()
     output$alpha <- matrix(0, r, d1)
-
     if (method == "rr") {
         for (i in 1:d1) {
             rlm.output <- rlm.cate(x = Gamma, y = corr.margin[, i],
@@ -63,10 +62,11 @@ adjust.latent <- function(corr.margin,
         }
         output$beta <- corr.margin - Gamma %*% output$alpha
         output$beta.cov.row <- Sigma
-        output$beta.cov.col <- ginv(X.cov)[(d-d1+1):d, (d-d1+1):d] + t(output$alpha) %*% output$alpha
-    } else if (method == "nc") {
+        output$beta.cov.col <- ginv(X.cov)[(d-d1+1):d, (d-d1+1):d, drop = F] + t(output$alpha) %*% output$alpha
+    } else if (method == "nc") { 
         lm.output <- lm(corr.margin[nc, ] ~ Gamma[nc, ] - 1, weights = 1 / Sigma[nc])
         output$alpha <- lm.output$coefficients
+        output$alpha <- as.matrix(output$alpha)
         output$beta <- corr.margin - Gamma %*% output$alpha
         if (nc.var.correction) {
             output$beta.cov.row <- Sigma + 
@@ -74,7 +74,7 @@ adjust.latent <- function(corr.margin,
         } else {
             output$beta.cov.row <- Sigma
         }
-        output$beta.cov.col <- ginv(X.cov)[(d-d1+1):d, (d-d1+1):d] + t(output$alpha) %*% output$alpha
+        output$beta.cov.col <- ginv(X.cov)[(d-d1+1):d, (d-d1+1):d, drop = F] + t(output$alpha) %*% output$alpha
     } else if (method == "lqs") {
         for (i in 1:d1) {
             lqs.output <- lqs(Gamma, corr.margin[, i], intercept = FALSE, method = "lts")
@@ -82,8 +82,9 @@ adjust.latent <- function(corr.margin,
         }
         output$beta <- corr.margin - Gamma %*% output$alpha
         output$beta.cov.row <- Sigma
-        output$beta.cov.col <- ginv(X.cov)[(d-d1+1):d, (d-d1+1):d] + t(output$alpha) %*% output$alpha
+        output$beta.cov.col <- ginv(X.cov)[(d-d1+1):d, (d-d1+1):d, drop = F] + t(output$alpha) %*% output$alpha
     }
+    colnames(output$alpha) <- colnames(corr.margin)
 
     return(output)
 

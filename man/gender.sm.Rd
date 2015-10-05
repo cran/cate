@@ -6,6 +6,7 @@
 \title{Gender study dataset}
 \description{
 This genetics dataset is used to demonstrate the usage of \code{cate} in the vignette. It was originally extracted by Gagnon-Bartsch and Speed (2012) as an example of confounded multiple testing.
+The data included in this package contains only 500 genes that are sampled from the original 12600 genes, besides keeping all the spike-in controls.
 }
 \references{
 \url{http://www.stat.berkeley.edu/~johann/ruv/index.html}

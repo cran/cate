@@ -5,18 +5,18 @@
 \alias{est.factor.num}
 \title{Estimate the number of confounders}
 \usage{
-est.confounder.num(X, Y, X.nuis = NULL, method = c("bcv", "ed"),
-  rmax = 20, nRepeat = 12, bcv.plot = TRUE, log = "")
+est.confounder.num(formula, X.data = NULL, Y, method = c("bcv", "ed"),
+  rmax = 20, nRepeat = 20, bcv.plot = TRUE, log = "")
 
 est.factor.num(Y, method = c("bcv", "ed"), rmax = 20, nRepeat = 12,
   bcv.plot = TRUE, log = "")
 }
 \arguments{
-\item{X}{treatment variable, n*d0 matrix}
+\item{formula}{a formula indicating the known covariates including both primary variables and nuisance variables, which are seperated by \code{|}. The variables before \code{|} are primary variables and the variables after \code{|} are nuisance variables. It's OK if there is no nuisance variables, then \code{|} is not needed and \code{formula} becomes a typical formula with all the covariates considered primary. An intercept term will still be automatically added as a nuisance variable for the latter case.}
+
+\item{X.data}{the data frame used for \code{formula}}
 
 \item{Y}{outcome, n*p matrix}
-
-\item{X.nuis}{nuisance covarites, n*d1 matrix}
 
 \item{method}{method to estimate the number of factors. There are currently two choices,
 "ed" is the eigenvalue difference method proposed by Onatski (2010) and "bcv" is the
@@ -53,8 +53,9 @@ Estimate the number of confounders
 \examples{
 ## example for est.confounder.num
 data <- gen.sim.data(n = 50, p = 100, r = 5)
-est.confounder.num(data$X1, data$Y, data$X0, method = "ed")
-est.confounder.num(data$X1, data$Y, data$X0, method = "bcv")
+X.data <- data.frame(X1 = data$X1)
+est.confounder.num(~ X1, X.data, data$Y, method = "ed")
+est.confounder.num(~ X1, X.data, data$Y, method = "bcv")
 ## example for est.factor.num
 n <- 50
 p <- 100

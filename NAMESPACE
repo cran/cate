@@ -2,6 +2,7 @@
 
 export(adjust.latent)
 export(cate)
+export(cate.fit)
 export(est.confounder.num)
 export(est.factor.num)
 export(fa.em)

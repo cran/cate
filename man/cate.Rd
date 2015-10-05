@@ -2,18 +2,23 @@
 % Please edit documentation in R/cate.R
 \name{cate}
 \alias{cate}
+\alias{cate.fit}
 \title{The main function for confounder adjusted testing}
 \usage{
-cate(X, Y, X.nuis = NULL, r, fa.method = c("ml", "pc", "esa"),
+cate(formula, X.data = NULL, Y, r, fa.method = c("ml", "pc", "esa"),
+  adj.method = c("rr", "nc", "lqs", "naive"), psi = psi.huber, nc = NULL,
+  nc.var.correction = TRUE, calibrate = TRUE)
+
+cate.fit(X.primary, X.nuis = NULL, Y, r, fa.method = c("ml", "pc", "esa"),
   adj.method = c("rr", "nc", "lqs", "naive"), psi = psi.huber, nc = NULL,
   nc.var.correction = TRUE, calibrate = TRUE)
 }
 \arguments{
-\item{X}{treatment variable, n*d0 matrix}
+\item{formula}{a formula indicating the known covariates including both primary variables and nuisance variables, which are seperated by \code{|}. The variables before \code{|} are primary variables and the variables after \code{|} are nuisance variables. It's OK if there is no nuisance variables, then \code{|} is not needed and \code{formula} becomes a typical formula with all the covariates considered primary. An intercept term will still be automatically added as a nuisance variable for the latter case.}
+
+\item{X.data}{the data frame used for \code{formula}}
 
 \item{Y}{outcome, n*p matrix}
-
-\item{X.nuis}{nuisance covarites, n*d1 matrix}
 
 \item{r}{number of latent factors, can be estimated using the function \code{est.confounder.num}}
 
@@ -29,21 +34,25 @@ if d0 > 1, this should be a matrix with 2 columns}
 \item{nc.var.correction}{correct asymptotic variance based on our formula}
 
 \item{calibrate}{if TRUE, use the Median and the Mean Absolute Deviation(MAD) to calibrate the test statistics}
+
+\item{X.primary}{primary variables, n*d0 matrix or data frame}
+
+\item{X.nuis}{nuisance covarites, n*d1 matrix}
 }
 \value{
 a list of objects
 \describe{
-\item{alpha}{estimated alpha}
-\item{alpha.p.value}{asymptotic p-value for the global chi squared test of alpha.}
-\item{beta}{estimated beta}
-\item{beta.cov.row}{estimated row covariance of \code{beta}}
-\item{beta.cov.col}{estimated column covariance of \code{beta}}
+\item{alpha}{estimated alpha, r*d1 matrix}
+\item{alpha.p.value}{asymptotic p-value for the global chi squared test of alpha, a vector of length d1}
+\item{beta}{estimated beta, p*d1 matrix}
+\item{beta.cov.row}{estimated row covariance of \code{beta}, a length p vector}
+\item{beta.cov.col}{estimated column covariance of \code{beta}, a d1*d1 matrix}
 \item{beta.t}{asymptotic z statistics for \code{beta}}
 \item{beta.p.value}{asymptotic p-values for beta, based on \code{beta.t}}
-\item{Y.tilde}{the transformed outcome matrix}
-\item{Gamma}{estimated factor loadings}
+\item{Y.tilde}{the transformed outcome matrix, an n*p matrix}
+\item{Gamma}{estimated factor loadings, p*r matrix}
 \item{Z}{estimated latent factors}
-\item{Sigma}{estimated noise variance matrix}
+\item{Sigma}{estimated noise variance matrix, a length p vector}
 }
 }
 \description{
@@ -52,13 +61,30 @@ The main function for confounder adjusted testing
 \details{
 Ideally \code{nc} can either be a vector of numbers between 1 and p, if d0 = 1 or the negative controls are the same for every treatment variable, or a 2-column matrix specifying which positions of beta are known to be zero. But this is yet implemented.
 }
+\section{Functions}{
+\itemize{
+\item \code{cate.fit}: Basic computing function called by \code{cate}
+}}
 \examples{
 ## simulate a dataset with 100 observations, 1000 variables and 5 confounders
 data <- gen.sim.data(n = 100, p = 1000, r = 5)
+X.data <- data.frame(X1 = data$X1)
+
 ## linear regression without any adjustment
-output.naive <- cate(X = data$X1, Y = data$Y, X.nuis = NULL, r = 0, adj.method = "naive")
+output.naive <- cate(~ X1, X.data, Y = data$Y, r = 0, adj.method = "naive")
 ## confounder adjusted linear regression
-output <- cate(X = data$X1, Y = data$Y, X.nuis = NULL, r = 5)
+output <- cate(~ X1, X.data, Y = data$Y, r = 5)
+## plot the histograms of unadjusted and adjusted regression statistics
+par(mfrow = c(1, 2))
+hist(output.naive$beta.t)
+hist(output$beta.t)
+## simulate a dataset with 100 observations, 1000 variables and 5 confounders
+data <- gen.sim.data(n = 100, p = 1000, r = 5)
+## linear regression without any adjustment
+output.naive <- cate.fit(X.primary = data$X1, X.nuis = NULL, Y = data$Y,
+                         r = 0, adj.method = "naive")
+## confounder adjusted linear regression
+output <- cate.fit(X.primary = data$X1, X.nuis = NULL, Y = data$Y, r = 5)
 ## plot the histograms of unadjusted and adjusted regression statistics
 par(mfrow = c(1, 2))
 hist(output.naive$beta.t)

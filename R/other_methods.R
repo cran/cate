@@ -6,7 +6,6 @@
 #'
 #' @inheritParams cate
 #' 
-#' @details These functions add an intercept term automatically if \code{X.nuis} is \code{NULL}. 
 #' 
 #' @return All functions return \code{beta.p.value} which are the p-values after adjustment. 
 #' For the other returned objects, refer to \link{cate} for their meaning.
@@ -23,11 +22,13 @@
 #'                      Gamma.strength = c(seq(3, 1, length = r)) * sqrt(p),
 #'                      Sigma = 1 / rgamma(p, 3, rate = 2),
 #'                      beta.nonzero.frac = 0.05)
-#' sva.results <- sva.wrapper(data$X1, data$Y, data$X0, r = r, sva.method = "irw")
-#' ruv.results <- ruv.wrapper(data$X1, data$Y, data$X0, r = r, nc = sample(data$beta.zero.pos, 30), 
-#'                            ruv.method = "RUV4")
-#' leapp.results <- leapp.wrapper(data$X1, data$Y, data$X0, r = r)
-#' cate.results <- cate(data$X1, data$Y, data$X0, r = r)
+#' X.data <- data.frame(X1 = data$X1)
+#' sva.results <- sva.wrapper(~ X1, X.data, data$Y,
+#'                            r = r, sva.method = "irw")
+#' ruv.results <- ruv.wrapper(~ X1, X.data, data$Y, r = r,  
+#'                            nc = sample(data$beta.zero.pos, 30), ruv.method = "RUV4")
+#' leapp.results <- leapp.wrapper(~ X1, X.data, data$Y, r = r)
+#' cate.results <- cate(~ X1, X.data, data$Y, r = r)
 #' 
 #' ## p-values after adjustment
 #' par(mfrow = c(2, 2))
@@ -54,32 +55,36 @@ NULL
 #' @param sva.method parameter for \code{\link[sva]{sva}}. 
 #'        whether to use an iterative reweighted algorithm (irw) or a two-step algorithm (two-step).
 #' @param B parameter for \code{\link[sva]{sva}}. the number of iterations of the irwsva algorithm
+#' @details The \code{beta.p.values} returned is a length \code{p} vector, each for the overall effects of all the primary variables.
+#'
 #' @import sva stats
 #' @export
 #'
-sva.wrapper <- function(X,
+sva.wrapper <- function(formula,
+                        X.data = NULL,
                         Y,
-                        X.nuis = NULL,
                         r,
                         sva.method = c("irw", "two-step"),
                         B = 5) {
   
     method <- match.arg(sva.method, c("irw", "two-step"))
     dat <- t(Y)
+    
+    X <- parse.cate.formula(formula, X.data)      
+    X.primary <- X$X.primary
+    X.nuis <- X$X.nuis
 
-    if (is.null(X.nuis)) {
-    	mod <- model.matrix(~X)
-        mod0 <- model.matrix(~1, data = as.data.frame(X))
-    } else {
-    	mod <- cbind(X, X.nuis)
-    	mod <- model.matrix(~ mod + 0)
-        mod0 <- model.matrix(~X.nuis + 0)
-    }
+	mod <- cbind(X.primary, X.nuis)
+    mod0 <- X.nuis
+    if (ncol(X.nuis) == 0)
+    	mod0 <- NULL
+  
     result <- sva(dat, mod, mod0, r, method = method, B= B)
     Z <- result$sv
+    rownames(Z) <- rownames(X)
     modSV <- cbind(mod, Z)
     mod0SV <- cbind(mod0, Z)
-    ## only can calculate a vector of p-values
+    ## only can calculate a vector of p-values. It's the p-values of the effect of all the primary variables as a whole
     p.values <- f.pvalue(dat, modSV, mod0SV)
     return(list(beta.p.value = p.values, Z= Z, beta.p.post = result$pprob.b))
 
@@ -94,16 +99,25 @@ sva.wrapper <- function(X,
 #' @import ruv
 #' @export
 #' 
-ruv.wrapper <- function(X,
+ruv.wrapper <- function(formula,
+                        X.data = NULL,
                         Y,
-                        X.nuis = NULL,
                         r,
                         nc, 
                         lambda = 1,
                         ruv.method = c("RUV2", "RUV4", "RUVinv")) {
   
     method <- match.arg(ruv.method, c("RUV2", "RUV4", "RUVinv"))
-    Z <- ifelse(is.null(X.nuis), 1, X.nuis)
+
+	X <- parse.cate.formula(formula, X.data)      
+    X.primary <- X$X.primary
+    X.nuis <- X$X.nuis
+    
+    X <- X.primary
+    Z <- X.nuis
+    if (ncol(X.nuis) == 0)
+    	Z <- NULL
+    
     p <- ncol(Y)
     n <- nrow(Y)
     ctl <- rep(F, p)
@@ -124,32 +138,39 @@ ruv.wrapper <- function(X,
     beta.t <- t(result$t)
     beta.p.value <- t(result$p)
     Sigma <- result$sigma2
+    names(Sigma) <- colnames(Y)
     return(list(Gamma = Gamma, Sigma = Sigma, beta = beta, beta.t = beta.t,
                 beta.p.value = beta.p.value, Z = result$W))
 }
 
 #' @rdname wrapper
-#' @param search.tuning logical parameter for \code{\link[leapp]{leapp}}, whether using BIC to search for tuning parameter of IPOD
+#' @param search.tuning logical parameter for \code{\link[leapp]{leapp}}, whether using BIC to search for tuning parameter of IPOD. 
 #' @param ipod.method parameter for \code{\link[leapp]{leapp}}. "hard": hard thresholding in the IPOD algorithm;
 #' "soft": soft thresholding in the IPOD algorithm
 #' 
-#' @details Only 1 variable of interest is allowed for \code{leapp.wrapper}.
+#' @details Only 1 variable of interest is allowed for \code{leapp.wrapper}. The method can be slow.
 #' 
 #' @import corpcor
 #' @export
 #' 
-leapp.wrapper <- function(X,
+leapp.wrapper <- function(formula,
+                          X.data = NULL,
                           Y,
-                          X.nuis = NULL,
                           r,
                           search.tuning = F,
                           ipod.method = c("hard", "soft")) {
     method <- match.arg(ipod.method, c("hard", "soft"))
+
+	X <- parse.cate.formula(formula, X.data)      
+    X.primary <- X$X.primary
+    X.nuis <- X$X.nuis
+
+    n <- nrow(X.primary)
     data <- t(Y)
-    pred.prim <- X
+    pred.prim <- X.primary
     pred.covar <- X.nuis
-    n <- nrow(Y)
-    if (sum(X.nuis == 1) == n)
+ 
+    if (ncol(X.nuis) == 1 & (sum(X.nuis == 1) == n))
         pred.covar <- NULL
     if (search.tuning) {
         result <- leapp(data, pred.prim, pred.covar, num.fac = r, method = method)
@@ -158,12 +179,12 @@ leapp.wrapper <- function(X,
     }
     beta.p.value <- result$p
     beta <- result$gamma
+    names(beta) <- colnames(Y)
     Gamma <- result$uest
     Sigma <- result$sigma^2
     beta.t <- result$resOpt.scale
-    Z <- result$vest
     return(list(Gamma = Gamma, Sigma = Sigma, beta = beta,
-                beta.t = beta.t, beta.p.value = beta.p.value, Z  = Z))
+                beta.t = beta.t, beta.p.value = beta.p.value))
 
 }
 
