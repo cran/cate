@@ -9,7 +9,7 @@
 #' The main function for factor analysis with potentially high dimensional variables.
 #' Here we implement some recent algorithms that is optimized for the high dimensional problem where
 #' the number of samples n is less than the number of variables p.
-#' 
+#'
 #' @param Y data matrix, a n*p matrix
 #' @param r number of factors
 #' @param method algorithm to be used
@@ -22,7 +22,7 @@
 #' using the PCA solution as the initial value.
 #' See Bai and Li (2012) and for more details. For the esa method, see
 #' Owen and Wang (2015) for more details.
-#' 
+#'
 #' @return a list of objects
 #' \describe{
 #' \item{Gamma}{estimated factor loadings}
@@ -34,7 +34,7 @@
 #' Bai, J. and Li, K. (2012). Statistical analysis of factor models of high dimension. \emph{The Annals of Statistics 40}, 436-465.
 #' Owen, A. B. and Wang, J. (2015). Bi-cross-validation for factor analysis. \emph{arXiv:1503.03515}.
 #' }
-#' 
+#'
 #' @examples
 #' ## a factor model
 #' n <- 100
@@ -43,17 +43,17 @@
 #' Z <- matrix(rnorm(n * r), n, r)
 #' Gamma <- matrix(rnorm(p * r), p, r)
 #' Y <- Z %*% t(Gamma) + rnorm(n * p)
-#' 
+#'
 #' ## to check the results, verify the true factors are in the linear span of the estimated factors.
-#' pc.results <- factor.analysis(Y, r = 5, "pc") 
+#' pc.results <- factor.analysis(Y, r = 5, "pc")
 #' sapply(summary(lm(Z ~ pc.results$Z)), function(x) x$r.squared)
-#' 
-#' ml.results <- factor.analysis(Y, r = 5, "ml") 
+#'
+#' ml.results <- factor.analysis(Y, r = 5, "ml")
 #' sapply(summary(lm(Z ~ ml.results$Z)), function(x) x$r.squared)
-#' 
+#'
 #' esa.results <- factor.analysis(Y, r = 5, "esa")
 #' sapply(summary(lm(Z ~ esa.results$Z)), function(x) x$r.squared)
-#' 
+#'
 #' @seealso \code{\link{fa.pc}}, \code{\link{fa.em}}, \code{\link[esaBcv]{ESA}}
 #'
 #' @import esaBcv
@@ -65,7 +65,7 @@ factor.analysis <- function(Y,
 
                                         # match the arguments
     if (r == 0) {
-    	return(list(Gamma = NULL, 
+    	return(list(Gamma = NULL,
     				Z = NULL,
     				Sigma = apply(Y, 2, function(v) mean(v^2))))
     }
@@ -78,7 +78,7 @@ factor.analysis <- function(Y,
     } else if(method == "esa") {
     	result <- ESA(Y, r)
     	return(list(Gamma = result$estV %*% diag(result$estD, r,r),
-    				Z = sqrt(nrow(Y)) * result$estU, 
+    				Z = sqrt(nrow(Y)) * result$estU,
     				Sigma = result$estSigma))
     }
 }
@@ -86,20 +86,20 @@ factor.analysis <- function(Y,
 #' Factor analysis via principal components
 #'
 #' @inheritParams factor.analysis
-#' 
+#'
 #' @seealso \code{\link{factor.analysis}} for the main function.
-#' 
+#'
 #' @export
 #'
 fa.pc <- function(Y, r) {
 
     svd.Y <- svd(Y)
-    
+
     Gamma <- svd.Y$v[, 1:r] %*% diag(svd.Y$d[1:r], r, r) / sqrt(nrow(Y))
     Z <- sqrt(nrow(Y)) * svd.Y$u[, 1:r]
-    
+
     Sigma <- apply(Y - Z %*% t(Gamma), 2, function(x) mean(x^2))
-    
+
     return(list(Gamma = Gamma,
     			 Z = Z,
                 Sigma = Sigma))
@@ -112,17 +112,18 @@ fa.pc <- function(Y, r) {
 #' @inheritParams factor.analysis
 #' @param tol a tolerance scale of change of log-likelihood for convergence in the EM iterations
 #' @param maxiter maximum iterations
-#' 
+#'
 #' @seealso \code{\link{factor.analysis}} for the main function.
-#' 
+#'
 #' @references {
 #' Bai, J. and Li, K. (2012). Statistical analysis of factor models of high dimension. \emph{The Annals of Statistics 40}, 436-465.
-#' See \url{http://www.mathworks.com/matlabcentral/fileexchange/28906-factor-analysis/content/fa.m} for a MATLAB implementation of the EM algorithm.
 #' }
-#' 
+#'
 #' @export
 #'
 fa.em <- function(Y, r, tol = 1e-6, maxiter = 1000) {
+
+    ## A Matlab version of this EM algorithm was in http://www.mathworks.com/matlabcentral/fileexchange/28906-factor-analysis/content/fa.m
 
     ## The EM algorithm:
     ##
@@ -222,10 +223,10 @@ fa.em <- function(Y, r, tol = 1e-6, maxiter = 1000) {
             break
         }
     }
-    
+
     # GLS to estimate factor loadings
     svd.H <- svd(t(Gamma) %*% (invSigma * Gamma))
-    Z <- Y %*% (invSigma * Gamma) %*% (svd.H$u %*% (1/svd.H$d * t(svd.H$v))) 
+    Z <- Y %*% (invSigma * Gamma) %*% (svd.H$u %*% (1/svd.H$d * t(svd.H$v)))
 
     return(list(Gamma = Gamma,
                 Sigma = 1/invSigma,
@@ -236,9 +237,9 @@ fa.em <- function(Y, r, tol = 1e-6, maxiter = 1000) {
 }
 
 #' @describeIn est.confounder.num Estimate the number of factors
-#' 
+#'
 #' @export
-#' 
+#'
 #' @examples
 #' ## example for est.factor.num
 #' n <- 50
@@ -247,21 +248,21 @@ fa.em <- function(Y, r, tol = 1e-6, maxiter = 1000) {
 #' Z <- matrix(rnorm(n * r), n, r)
 #' Gamma <- matrix(rnorm(p * r), p, r)
 #' Y <- Z %*% t(Gamma) + rnorm(n * p)
-#' 
+#'
 #' est.factor.num(Y, method = "ed")
 #' est.factor.num(Y, method = "bcv")
-#' 
+#'
 est.factor.num <- function(Y,
                            method = c("bcv", "ed"),
-                           rmax = 20,                           
+                           rmax = 20,
                            nRepeat = 12,
                            bcv.plot = TRUE, log = "") {
-  
+
   method <- match.arg(method, c("bcv", "ed"))
-  
+
   n <- nrow(Y)
   p <- ncol(Y)
-    
+
   if (identical(method, "bcv")) {
     result <- EsaBcv(Y, nRepeat = nRepeat, r.limit = rmax)
     r <- result$best.r
@@ -280,34 +281,34 @@ est.factor.num <- function(Y,
 
 #' the ed method to estimate the number of factors proposed by Onatski(2010)
 #' @inheritParams est.confounder.num
-#' 
+#'
 #' @keywords internal
 EigenDiff <- function(Y, rmax = 20, niter = 10) {
 	n <- nrow(Y)
 	p <- ncol(Y)
-	ev <- svd(Y)$d^2 / n 
+	ev <- svd(Y)$d^2 / n
 	n <- length(ev)
-	if (is.null(rmax)) 
+	if (is.null(rmax))
 		rmax <- 3 * sqrt(n)
 	j <- rmax + 1
-	
+
 	diffs <- ev - c(ev[-1], 0)
-	
+
 	for (i in 1:niter) {
 		y <- ev[j:(j+4)]
 		x <- ((j-1):(j+3))^(2/3)
 		lm.coef <- lm(y ~ x)
 		delta <- 2 * abs(lm.coef$coef[2])
 		idx <- which(diffs[1:rmax] > delta)
-		if (length(idx) == 0) 
+		if (length(idx) == 0)
 			hatr <- 0
 		else hatr <- max(idx)
-		
+
 		newj = hatr + 1
 		if (newj == j) break
 		j = newj
 	}
-	
+
 	return(hatr)
-	
+
 }

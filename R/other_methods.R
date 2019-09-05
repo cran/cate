@@ -1,58 +1,58 @@
 #' Wrapper functions for some previous methods
-#' 
+#'
 #' @description These functions provide an uniform interface to three existing methods: SVA, RUV, LEAPP
 #' The wrapper functions transform the data into desired forms and call the corresponding functions in the package
 #' \link{sva}, \link{ruv}, \link[leapp]{leapp}
 #'
 #' @inheritParams cate
-#' 
-#' 
-#' @return All functions return \code{beta.p.value} which are the p-values after adjustment. 
+#'
+#'
+#' @return All functions return \code{beta.p.value} which are the p-values after adjustment.
 #' For the other returned objects, refer to \link{cate} for their meaning.
-#' 
+#'
 #' @examples
 #' ## this is the simulation example in Wang et al. (2015).
 #' n <- 100
 #' p <- 1000
 #' r <- 2
 #' set.seed(1)
-#' data <- gen.sim.data(n = n, p = p, r = r, 
-#'                      alpha = rep(1 / sqrt(r), r), 
-#'                      beta.strength = 3 * sqrt(1 + 1) / sqrt(n), 
+#' data <- gen.sim.data(n = n, p = p, r = r,
+#'                      alpha = rep(1 / sqrt(r), r),
+#'                      beta.strength = 3 * sqrt(1 + 1) / sqrt(n),
 #'                      Gamma.strength = c(seq(3, 1, length = r)) * sqrt(p),
 #'                      Sigma = 1 / rgamma(p, 3, rate = 2),
 #'                      beta.nonzero.frac = 0.05)
 #' X.data <- data.frame(X1 = data$X1)
-#' sva.results <- sva.wrapper(~ X1, X.data, data$Y,
+#' sva.results <- sva.wrapper(~ X1 | 1, X.data, data$Y,
 #'                            r = r, sva.method = "irw")
-#' ruv.results <- ruv.wrapper(~ X1, X.data, data$Y, r = r,  
+#' ruv.results <- ruv.wrapper(~ X1 | 1, X.data, data$Y, r = r,
 #'                            nc = sample(data$beta.zero.pos, 30), ruv.method = "RUV4")
-#' leapp.results <- leapp.wrapper(~ X1, X.data, data$Y, r = r)
-#' cate.results <- cate(~ X1, X.data, data$Y, r = r)
-#' 
+#' leapp.results <- leapp.wrapper(~ X1 | 1, X.data, data$Y, r = r)
+#' cate.results <- cate(~ X1 | 1, X.data, data$Y, r = r)
+#'
 #' ## p-values after adjustment
 #' par(mfrow = c(2, 2))
 #' hist(sva.results$beta.p.value)
 #' hist(ruv.results$beta.p.value)
 #' hist(leapp.results$beta.p.value)
 #' hist(cate.results$beta.p.value)
-#' 
+#'
 #' ## type I error
 #' mean(sva.results$beta.p.value[data$beta.zero.pos] < 0.05)
-#' 
+#'
 #' ## power
 #' mean(sva.results$beta.p.value[data$beta.nonzero.pos] < 0.05)
-#' 
+#'
 #' ## false discovery proportion for sva
 #' discoveries.sva <- which(p.adjust(sva.results$beta.p.value, "BH") < 0.2)
 #' fdp.sva <- length(setdiff(discoveries.sva, data$beta.nonzero.pos)) / max(length(discoveries.sva), 1)
 #' fdp.sva
-#' 
+#'
 #' @name wrapper
 NULL
 
 #' @rdname wrapper
-#' @param sva.method parameter for \code{\link[sva]{sva}}. 
+#' @param sva.method parameter for \code{\link[sva]{sva}}.
 #'        whether to use an iterative reweighted algorithm (irw) or a two-step algorithm (two-step).
 #' @param B parameter for \code{\link[sva]{sva}}. the number of iterations of the irwsva algorithm
 #' @details The \code{beta.p.values} returned is a length \code{p} vector, each for the overall effects of all the primary variables.
@@ -66,19 +66,21 @@ sva.wrapper <- function(formula,
                         r,
                         sva.method = c("irw", "two-step"),
                         B = 5) {
-  
+
     method <- match.arg(sva.method, c("irw", "two-step"))
     dat <- t(Y)
-    
-    X <- parse.cate.formula(formula, X.data)      
+
+    X <- parse.cate.formula(formula, X.data)
     X.primary <- X$X.primary
     X.nuis <- X$X.nuis
 
-	mod <- cbind(X.primary, X.nuis)
+    check.rank(X.primary, X.nuis)
+
+    mod <- cbind(X.primary, X.nuis)
     mod0 <- X.nuis
     if (ncol(X.nuis) == 0)
     	mod0 <- NULL
-  
+
     result <- sva(dat, mod, mod0, r, method = method, B= B)
     Z <- result$sv
     rownames(Z) <- rownames(X)
@@ -95,29 +97,31 @@ sva.wrapper <- function(formula,
 #'    	         \code{\link[ruv]{RUVinv}} functions
 #' @param nc parameter for \link[ruv]{ruv} functions: position of the negative controls
 #' @param lambda parameter for \code{\link[ruv]{RUVinv}}
-#'  		         
+#'
 #' @import ruv
 #' @export
-#' 
+#'
 ruv.wrapper <- function(formula,
                         X.data = NULL,
                         Y,
                         r,
-                        nc, 
+                        nc,
                         lambda = 1,
                         ruv.method = c("RUV2", "RUV4", "RUVinv")) {
-  
+
     method <- match.arg(ruv.method, c("RUV2", "RUV4", "RUVinv"))
 
-	X <- parse.cate.formula(formula, X.data)      
+    X <- parse.cate.formula(formula, X.data)
     X.primary <- X$X.primary
     X.nuis <- X$X.nuis
-    
+
+    check.rank(X.primary, X.nuis)
+
     X <- X.primary
     Z <- X.nuis
     if (ncol(X.nuis) == 0)
     	Z <- NULL
-    
+
     p <- ncol(Y)
     n <- nrow(Y)
     ctl <- rep(F, p)
@@ -144,15 +148,15 @@ ruv.wrapper <- function(formula,
 }
 
 #' @rdname wrapper
-#' @param search.tuning logical parameter for \code{\link[leapp]{leapp}}, whether using BIC to search for tuning parameter of IPOD. 
+#' @param search.tuning logical parameter for \code{\link[leapp]{leapp}}, whether using BIC to search for tuning parameter of IPOD.
 #' @param ipod.method parameter for \code{\link[leapp]{leapp}}. "hard": hard thresholding in the IPOD algorithm;
 #' "soft": soft thresholding in the IPOD algorithm
-#' 
+#'
 #' @details Only 1 variable of interest is allowed for \code{leapp.wrapper}. The method can be slow.
-#' 
+#'
 #' @import corpcor
 #' @export
-#' 
+#'
 leapp.wrapper <- function(formula,
                           X.data = NULL,
                           Y,
@@ -161,15 +165,17 @@ leapp.wrapper <- function(formula,
                           ipod.method = c("hard", "soft")) {
     method <- match.arg(ipod.method, c("hard", "soft"))
 
-	X <- parse.cate.formula(formula, X.data)      
+    X <- parse.cate.formula(formula, X.data)
     X.primary <- X$X.primary
     X.nuis <- X$X.nuis
+
+    check.rank(X.primary, X.nuis)
 
     n <- nrow(X.primary)
     data <- t(Y)
     pred.prim <- X.primary
     pred.covar <- X.nuis
- 
+
     if (ncol(X.nuis) == 1 & (sum(X.nuis == 1) == n))
         pred.covar <- NULL
     if (search.tuning) {
@@ -190,12 +196,12 @@ leapp.wrapper <- function(formula,
 
 
 #' changed IPOD function
-#' 
+#'
 #' @importFrom leapp IPODFUN
 #' @import stats
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 IPOD <-
     function (X, Y, H, method = "hard", TOL = 1e-04, length.out = 50)
 {
@@ -301,12 +307,12 @@ IPOD <-
 }
 
 #' original leapp function only added the resOpt.scale(beta.t) return
-#' 
+#'
 #' @importFrom leapp IPODFUN ridge AlternateSVD
 #' @importFrom grDevices dev.off png
 #' @importFrom graphics plot
 #' @keywords internal
-#' 
+#'
 leapp <-
     function (data, pred.prim, pred.covar = NULL, O = NULL, num.fac = "buja",
               method = "hard", sparse = TRUE, centered = FALSE, verbose = FALSE,
@@ -377,9 +383,9 @@ leapp <-
 }
 
 # #' Same function in LEAPP?
-# #' 
+# #'
 # #' @keywords internal
-# #' 
+# #'
 # AlternateSVD <- function (x, r, pred = NULL, max.iter = 10, TOL = 1e-04)
 # {
 #     N = nrow(x)
@@ -420,9 +426,9 @@ leapp <-
 
 
 # #' Same function?
-# #' 
+# #'
 # #' @keywords internal
-# #' 
+# #'
 # IPODFUN <- function (X, Y, H, sigma, betaInit, method = "hard", TOL = 1e-04)
 # {
 #     N = length(Y)

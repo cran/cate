@@ -8,19 +8,19 @@
 #' @param Gamma estimated confounding effects, p*r matrix
 #' @param Sigma diagonal of the estimated noise covariance, p*1 vector
 #' @param method adjustment method
-#' @param psi derivative of the loss function in robust regression, choices are 
+#' @param psi derivative of the loss function in robust regression, choices are
 #'			  \code{psi.huber}, \code{psi.bisquare}and \code{psi.hampel}
 #' @param nc position of the negative controls
 #' @param nc.var.correction correct asymptotic variance based on our formula
-#' 
-#' @details The function essentially runs a regression of \code{corr.margin} ~ \code{Gamma}. 
+#'
+#' @details The function essentially runs a regression of \code{corr.margin} ~ \code{Gamma}.
 #' The sample size \code{n} is needed to have the right scale.
-#' 
-#' This function should only be called if you know what you are doing. 
+#'
+#' This function should only be called if you know what you are doing.
 #' Most of the time you want to use the main function \code{\link{cate}} to adjust for confounders.
-#' 
+#'
 #' @seealso \code{\link{cate}}
-#' 
+#'
 #' @return a list of objects
 #' \describe{
 #' \item{alpha}{estimated alpha, r*d1 matrix}
@@ -34,7 +34,7 @@
 #' @export
 #'
 adjust.latent <- function(corr.margin,
-						  n, 
+                          n,
                           X.cov,
                           Gamma,
                           Sigma,
@@ -56,20 +56,20 @@ adjust.latent <- function(corr.margin,
     if (method == "rr") {
         for (i in 1:d1) {
             rlm.output <- rlm.cate(x = Gamma, y = corr.margin[, i],
-                                  known.scale = sqrt(Sigma)/sqrt(n),
+                                   known.scale = sqrt(Sigma)/sqrt(n),
                                    psi = psi)
             output$alpha[, i] <- rlm.output$coefficients
         }
         output$beta <- corr.margin - Gamma %*% output$alpha
         output$beta.cov.row <- Sigma
         output$beta.cov.col <- ginv(X.cov)[(d-d1+1):d, (d-d1+1):d, drop = F] + t(output$alpha) %*% output$alpha
-    } else if (method == "nc") { 
+    } else if (method == "nc") {
         lm.output <- lm(corr.margin[nc, ] ~ Gamma[nc, ] - 1, weights = 1 / Sigma[nc])
         output$alpha <- lm.output$coefficients
         output$alpha <- as.matrix(output$alpha)
         output$beta <- corr.margin - Gamma %*% output$alpha
         if (nc.var.correction) {
-            output$beta.cov.row <- Sigma + 
+            output$beta.cov.row <- Sigma +
             diag(Gamma %*% solve(t(Gamma[nc,]) %*% diag(1/Sigma[nc]) %*% Gamma[nc, ]) %*% t(Gamma))
         } else {
             output$beta.cov.row <- Sigma
@@ -94,7 +94,7 @@ adjust.latent <- function(corr.margin,
 #'
 #' @description This function is slightly modified from rlm.default in the package MASS.
 #' The only difference is an option of "known.scale", which is an input vector of the same length of y.
-#' 
+#'
 #' @import stats
 #'
 #' @keywords internal
