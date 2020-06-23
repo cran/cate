@@ -4,9 +4,20 @@
 \alias{leapp}
 \title{original leapp function only added the resOpt.scale(beta.t) return}
 \usage{
-leapp(data, pred.prim, pred.covar = NULL, O = NULL, num.fac = "buja",
-  method = "hard", sparse = TRUE, centered = FALSE,
-  verbose = FALSE, perm.num = 50, TOL = 1e-04, length.out = 50)
+leapp(
+  data,
+  pred.prim,
+  pred.covar = NULL,
+  O = NULL,
+  num.fac = "buja",
+  method = "hard",
+  sparse = TRUE,
+  centered = FALSE,
+  verbose = FALSE,
+  perm.num = 50,
+  TOL = 1e-04,
+  length.out = 50
+)
 }
 \description{
 original leapp function only added the resOpt.scale(beta.t) return

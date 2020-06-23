@@ -2,7 +2,7 @@
 #'
 #' @description These functions provide an uniform interface to three existing methods: SVA, RUV, LEAPP
 #' The wrapper functions transform the data into desired forms and call the corresponding functions in the package
-#' \link{sva}, \link{ruv}, \link[leapp]{leapp}
+#' \link{sva}, \link{ruv}, \link{leapp}
 #'
 #' @inheritParams cate
 #'
@@ -93,10 +93,10 @@ sva.wrapper <- function(formula,
 }
 
 #' @rdname wrapper
-#' @param ruv.method either using \code{\link[ruv]{RUV2}}, \code{\link[ruv]{RUV4}} or
-#'    	         \code{\link[ruv]{RUVinv}} functions
-#' @param nc parameter for \link[ruv]{ruv} functions: position of the negative controls
-#' @param lambda parameter for \code{\link[ruv]{RUVinv}}
+#' @param ruv.method either using \code{\link[ruv:RUV2]{RUV2}}, \code{\link[ruv:RUV4]{RUV4}} or
+#'    	         \code{\link[ruv:RUVinv]{RUVinv}} functions
+#' @param nc parameter for \link{ruv} functions: position of the negative controls
+#' @param lambda parameter for \code{\link[ruv:RUVinv]{RUVinv}}
 #'
 #' @import ruv
 #' @export

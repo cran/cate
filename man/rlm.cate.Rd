@@ -4,11 +4,24 @@
 \alias{rlm.cate}
 \title{Robust linear regression}
 \usage{
-\method{rlm}{cate}(x, y, weights, ..., w = rep(1, nrow(x)),
-  init = "ls", psi = psi.huber, scale.est = c("MAD", "Huber",
-  "proposal 2"), k2 = 1.345, method = c("M", "MM"),
-  wt.method = c("inv.var", "case"), maxit = 100, acc = 1e-04,
-  test.vec = "resid", lqs.control = NULL, known.scale = NULL)
+\method{rlm}{cate}(
+  x,
+  y,
+  weights,
+  ...,
+  w = rep(1, nrow(x)),
+  init = "ls",
+  psi = psi.huber,
+  scale.est = c("MAD", "Huber", "proposal 2"),
+  k2 = 1.345,
+  method = c("M", "MM"),
+  wt.method = c("inv.var", "case"),
+  maxit = 100,
+  acc = 1e-04,
+  test.vec = "resid",
+  lqs.control = NULL,
+  known.scale = NULL
+)
 }
 \description{
 This function is slightly modified from rlm.default in the package MASS.

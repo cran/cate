@@ -5,11 +5,25 @@
 \alias{est.factor.num}
 \title{Estimate the number of confounders}
 \usage{
-est.confounder.num(formula, X.data = NULL, Y, method = c("bcv", "ed"),
-  rmax = 20, nRepeat = 20, bcv.plot = TRUE, log = "")
+est.confounder.num(
+  formula,
+  X.data = NULL,
+  Y,
+  method = c("bcv", "ed"),
+  rmax = 20,
+  nRepeat = 20,
+  bcv.plot = TRUE,
+  log = ""
+)
 
-est.factor.num(Y, method = c("bcv", "ed"), rmax = 20, nRepeat = 12,
-  bcv.plot = TRUE, log = "")
+est.factor.num(
+  Y,
+  method = c("bcv", "ed"),
+  rmax = 20,
+  nRepeat = 12,
+  bcv.plot = TRUE,
+  log = ""
+)
 }
 \arguments{
 \item{formula}{a formula indicating the known covariates including both primary variables and nuisance variables, which are seperated by \code{|}. The variables before \code{|} are primary variables and the variables after \code{|} are nuisance variables. It's OK if there is no nuisance variables, then \code{|} is not needed and \code{formula} becomes a typical formula with all the covariates considered primary. When there is confusion about where the intercept should be put, \code{cate} will include it in X.nuis.}

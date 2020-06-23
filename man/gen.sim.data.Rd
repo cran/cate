@@ -4,10 +4,23 @@
 \alias{gen.sim.data}
 \title{Generate simulation data set}
 \usage{
-gen.sim.data(n, p, r, d0 = 0, d1 = 1, X.dist = c("binary", "normal"),
-  alpha = matrix(0.5, r, d0 + d1), beta = NULL, beta.strength = 1,
-  beta.nonzero.frac = 0.05, Gamma = NULL, Gamma.strength = sqrt(p),
-  Gamma.beta.cor = 0, Sigma = 1, seed = NULL)
+gen.sim.data(
+  n,
+  p,
+  r,
+  d0 = 0,
+  d1 = 1,
+  X.dist = c("binary", "normal"),
+  alpha = matrix(0.5, r, d0 + d1),
+  beta = NULL,
+  beta.strength = 1,
+  beta.nonzero.frac = 0.05,
+  Gamma = NULL,
+  Gamma.strength = sqrt(p),
+  Gamma.beta.cor = 0,
+  Sigma = 1,
+  seed = NULL
+)
 }
 \arguments{
 \item{n}{number of observations}

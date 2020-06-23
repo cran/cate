@@ -99,8 +99,10 @@ year = {2017}
 @article{wang2015bcv,
 title = {Bi-cross-validation for factor analysis},
 author = {Owen, Art B. and Wang, Jingshu},
-journal = {arXiv:1503.03515},
-year = {2015}
+journal = {Statistical Science},
+year = {2016},
+volume = {31},
+number = {1}
 }
 \end{filecontents*}
 

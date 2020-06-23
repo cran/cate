@@ -5,13 +5,31 @@
 \alias{cate.fit}
 \title{The main function for confounder adjusted testing}
 \usage{
-cate(formula, X.data = NULL, Y, r, fa.method = c("ml", "pc", "esa"),
-  adj.method = c("rr", "nc", "lqs", "naive"), psi = psi.huber,
-  nc = NULL, nc.var.correction = TRUE, calibrate = TRUE)
+cate(
+  formula,
+  X.data = NULL,
+  Y,
+  r,
+  fa.method = c("ml", "pc", "esa"),
+  adj.method = c("rr", "nc", "lqs", "naive"),
+  psi = psi.huber,
+  nc = NULL,
+  nc.var.correction = TRUE,
+  calibrate = TRUE
+)
 
-cate.fit(X.primary, X.nuis = NULL, Y, r, fa.method = c("ml", "pc",
-  "esa"), adj.method = c("rr", "nc", "lqs", "naive"), psi = psi.huber,
-  nc = NULL, nc.var.correction = TRUE, calibrate = TRUE)
+cate.fit(
+  X.primary,
+  X.nuis = NULL,
+  Y,
+  r,
+  fa.method = c("ml", "pc", "esa"),
+  adj.method = c("rr", "nc", "lqs", "naive"),
+  psi = psi.huber,
+  nc = NULL,
+  nc.var.correction = TRUE,
+  calibrate = TRUE
+)
 }
 \arguments{
 \item{formula}{a formula indicating the known covariates including both primary variables and nuisance variables, which are seperated by \code{|}. The variables before \code{|} are primary variables and the variables after \code{|} are nuisance variables. It's OK if there is no nuisance variables, then \code{|} is not needed and \code{formula} becomes a typical formula with all the covariates considered primary. When there is confusion about where the intercept should be put, \code{cate} will include it in X.nuis.}

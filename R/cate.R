@@ -86,7 +86,6 @@ cate <- function(formula,
 #'
 #' @param X.primary primary variables, n*d0 matrix or data frame
 #' @param X.nuis nuisance covarites, n*d1 matrix
-#' @inheritParams cate
 #'
 #' @examples
 #' ## simulate a dataset with 100 observations, 1000 variables and 5 confounders
@@ -343,8 +342,8 @@ parse.cate.formula <- function(formula, X.data = NULL) {
         X.nuis <- NULL
     } else {
         ## If there is |, always put interecept in X.nuis
-    	X.primary <- model.matrix(as.formula(paste("~", covariates[1], "+1")), data = X.data)[, -1, drop = FALSE]
-    	X.nuis <- model.matrix(as.formula(paste("~", covariates[2], "+1")), data = X.data)
+    	X.primary <- model.matrix(as.formula(paste("~", covariates[1])), data = X.data)[, -1, drop = FALSE]
+    	X.nuis <- model.matrix(as.formula(paste("~", covariates[2])), data = X.data)
     }
 
     return(list(X.primary = X.primary, X.nuis = X.nuis))

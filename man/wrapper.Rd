@@ -7,14 +7,33 @@
 \alias{leapp.wrapper}
 \title{Wrapper functions for some previous methods}
 \usage{
-sva.wrapper(formula, X.data = NULL, Y, r, sva.method = c("irw",
-  "two-step"), B = 5)
+sva.wrapper(
+  formula,
+  X.data = NULL,
+  Y,
+  r,
+  sva.method = c("irw", "two-step"),
+  B = 5
+)
 
-ruv.wrapper(formula, X.data = NULL, Y, r, nc, lambda = 1,
-  ruv.method = c("RUV2", "RUV4", "RUVinv"))
+ruv.wrapper(
+  formula,
+  X.data = NULL,
+  Y,
+  r,
+  nc,
+  lambda = 1,
+  ruv.method = c("RUV2", "RUV4", "RUVinv")
+)
 
-leapp.wrapper(formula, X.data = NULL, Y, r, search.tuning = F,
-  ipod.method = c("hard", "soft"))
+leapp.wrapper(
+  formula,
+  X.data = NULL,
+  Y,
+  r,
+  search.tuning = F,
+  ipod.method = c("hard", "soft")
+)
 }
 \arguments{
 \item{formula}{a formula indicating the known covariates including both primary variables and nuisance variables, which are seperated by \code{|}. The variables before \code{|} are primary variables and the variables after \code{|} are nuisance variables. It's OK if there is no nuisance variables, then \code{|} is not needed and \code{formula} becomes a typical formula with all the covariates considered primary. When there is confusion about where the intercept should be put, \code{cate} will include it in X.nuis.}
@@ -30,12 +49,12 @@ whether to use an iterative reweighted algorithm (irw) or a two-step algorithm (
 
 \item{B}{parameter for \code{\link[sva]{sva}}. the number of iterations of the irwsva algorithm}
 
-\item{nc}{parameter for \link[ruv]{ruv} functions: position of the negative controls}
+\item{nc}{parameter for \link{ruv} functions: position of the negative controls}
 
-\item{lambda}{parameter for \code{\link[ruv]{RUVinv}}}
+\item{lambda}{parameter for \code{\link[ruv:RUVinv]{RUVinv}}}
 
-\item{ruv.method}{either using \code{\link[ruv]{RUV2}}, \code{\link[ruv]{RUV4}} or
-\code{\link[ruv]{RUVinv}} functions}
+\item{ruv.method}{either using \code{\link[ruv:RUV2]{RUV2}}, \code{\link[ruv:RUV4]{RUV4}} or
+\code{\link[ruv:RUVinv]{RUVinv}} functions}
 
 \item{search.tuning}{logical parameter for \code{\link[leapp]{leapp}}, whether using BIC to search for tuning parameter of IPOD.}
 
@@ -49,7 +68,7 @@ For the other returned objects, refer to \link{cate} for their meaning.
 \description{
 These functions provide an uniform interface to three existing methods: SVA, RUV, LEAPP
 The wrapper functions transform the data into desired forms and call the corresponding functions in the package
-\link{sva}, \link{ruv}, \link[leapp]{leapp}
+\link{sva}, \link{ruv}, \link{leapp}
 }
 \details{
 The \code{beta.p.values} returned is a length \code{p} vector, each for the overall effects of all the primary variables.

@@ -4,8 +4,17 @@
 \alias{adjust.latent}
 \title{Adjust for latent factors, after rotationn}
 \usage{
-adjust.latent(corr.margin, n, X.cov, Gamma, Sigma, method = c("rr", "nc",
-  "lqs"), psi = psi.huber, nc = NULL, nc.var.correction = TRUE)
+adjust.latent(
+  corr.margin,
+  n,
+  X.cov,
+  Gamma,
+  Sigma,
+  method = c("rr", "nc", "lqs"),
+  psi = psi.huber,
+  nc = NULL,
+  nc.var.correction = TRUE
+)
 }
 \arguments{
 \item{corr.margin}{marginal correlations, p*d1 matrix}
